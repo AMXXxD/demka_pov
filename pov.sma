@@ -2,13 +2,12 @@
 
 #include <amxmodx>
 #include <amxmisc>
-#include <reapi>
+#include <reapi_reunion>
 
 #define PLUGIN "POV"
 #define VERSION "1.0"
 #define AUTHOR "PANDA"
 
-new prefix[] = "PrivateMix"; //najlepiej mniej niz 20znakow, za dlugi spowoduje problem z wywolaniem nagrywania
 new dane[33][3], maxplayers;
 
 public plugin_init() {
@@ -47,24 +46,22 @@ public client_disconnected(id){
 }
 		
 public pov(id){
-	if(get_user_flags(id) & ADMIN_BAN){
-		new menu=menu_create("Lista Graczy Steam:", "menu_handler");
+	if(get_user_flags(id) & ADMIN_LEVEL_H){
+		new menu=menu_create("Lista Graczy:", "menu_handler");
 		new callback=menu_makecallback("menu_callback");
 		new name[33], data[6], steam[16], dlugosc[30];
 		for(new i=1; i<=maxplayers; i++){
-			if(!is_user_connected(i) || !dane[i][0]) continue;
-		     
+			if(!is_user_connected(i)) continue;
 			num_to_str(i, data, 5);
 			get_user_name(i, name, 32);
 			formatex(steam, 15, "\d%s", dane[i][0]==2 ? "Sid Changer" : dane[i][0]==1 ? "Steam" : "NonSteam");
 			formatex(dlugosc, 29, "\wczas demka: \y%s", GetTimeAsString(get_systime(0)-dane[i][1]));
 			menu_additem(menu, fmt("%s %s %s", name, steam, dane[i][1] ? dlugosc : ""), data, _, callback);
-			
-			menu_setprop(menu, MPROP_BACKNAME, "Poprzednia");
-			menu_setprop(menu, MPROP_NEXTNAME, "Nastepna");
-			menu_setprop(menu, MPROP_EXITNAME, "Wyjscie");
-			menu_display(id, menu);
 		}
+		menu_setprop(menu, MPROP_BACKNAME, "Poprzednia");
+		menu_setprop(menu, MPROP_NEXTNAME, "Nastepna");
+		menu_setprop(menu, MPROP_EXITNAME, "Wyjscie");
+		menu_display(id, menu);
 	}
 	return PLUGIN_HANDLED;
 }
@@ -104,7 +101,7 @@ public menu_handler(id, menu, item){
 	replace_all(nick, 32, ">", "_");
 	replace_all(nick, 32, ":", "_");
 	get_mapname(mapka, 31);
-	formatex(nazwa, 99, "%s_%s_%s", prefix, nick, mapka);
+	formatex(nazwa, 99, "PrivateMix_%s_%s", nick, mapka);
 	client_cmd(id2, "record ^"%s^"", nazwa);
 	client_print_color(id, print_chat, "Rozpoczeto nagrywanie %s", nazwa);
 	log_to_file("addons/amxmodx/logs/pov.log", "Rozpoczeto nagrywanie %s", nazwa);
@@ -123,3 +120,6 @@ GetTimeAsString(seconds){
 
 	return szResult;
 }
+/* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
+*{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang1045\\ f0\\ fs16 \n\\ par }
+*/
